@@ -20,7 +20,7 @@ namespace todo.Models
 
         [Column("user_id")]
         [Sieve(CanFilter = true)]
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
         public User User { get; set; }
         public ICollection<Tasks> Tasks { get; set; }
         public ICollection<ProjectDetail> ProjectDetails { get; set; }

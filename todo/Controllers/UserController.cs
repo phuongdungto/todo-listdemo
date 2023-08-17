@@ -25,26 +25,34 @@ namespace todo.Controllers
             _mapper = mapper;
         }
         [HttpPost]
-        [Authorize]
+        /*[Authorize(Roles = UserRoles.Admin)]*/
         public async Task<IActionResult> CreateUser(CreateUsersDto user)
         {
-            var newUser = await _userRepository.CreateUser(user);
-            var userDto = _mapper.Map<UserDto>(newUser);
-            return Ok(userDto);
+            await _userRepository.CreateUser(user);
+            return Ok(new { Status = "Success", Message = "User created successfully!" });
         }
 
-        [Authorize]
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(AuthDto user)
+        {
+            var userLogin = await _userRepository.Login(user);
+            return Ok(userLogin);
+        }
+
+
+
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(Guid id)
+        [Authorize(Roles = UserRoles.Admin)]
+        public async Task<IActionResult> DeleteUser(string id)
         {
             await _userRepository.DeleteUser(id);
 
             return Ok("Deleted user success");
         }
 
-        [Authorize]
+        [Authorize(Roles = UserRoles.Admin)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(Guid id, UpdateUsersDto input)
+        public async Task<IActionResult> UpdateUser(string id, UpdateUsersDto input)
         {
             var user = await _userRepository.UpdateUser(id, input);
             var userDto = _mapper.Map<UserDto>(user);
@@ -52,11 +60,10 @@ namespace todo.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUser(Guid id)
+        public async Task<IActionResult> GetUser(string id)
         {
             var user = await _userRepository.GetUser(id);
-            var userDto = _mapper.Map<UserDto>(user);
-            return Ok(userDto);
+            return Ok(user);
         }
 
         [HttpGet]
@@ -81,13 +88,6 @@ namespace todo.Controllers
                 totalPages = (int)Math.Ceiling((double)totalRecord / (double)model.PageSize),
                 Users = userDto.ToList()
             });
-        }
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(AuthDto user)
-        {
-            var userLogin = await _userRepository.Login(user);
-            return Ok(userLogin);
         }
     }
 }

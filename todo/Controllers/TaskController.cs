@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Sieve.Models;
@@ -25,6 +26,7 @@ namespace todo.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.User)]
         public async Task<IActionResult> CreateTask(CreateTaskDto input)
         {
             var tasks = await tasksRepository.CreateTask(input);
@@ -33,6 +35,7 @@ namespace todo.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.User)]
         public async Task<IActionResult> UpdateTask(UpdateTaskDto input, Guid id)
         {
             var tasks = await tasksRepository.UpdateTask(input, id);
@@ -41,6 +44,7 @@ namespace todo.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.User)]
         public async Task<IActionResult> DeleteTask(Guid id)
         {
             await tasksRepository.DeleteTask(id);
@@ -48,6 +52,7 @@ namespace todo.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.User)]
         public async Task<IActionResult> GetTask(Guid id)
         {
             var tasks = await tasksRepository.GetTask(id);
@@ -56,6 +61,7 @@ namespace todo.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.User)]
         public async Task<IActionResult> GetProjects([FromQuery] SieveModel model)
         {
             var tasks = await tasksRepository.GetTasks();

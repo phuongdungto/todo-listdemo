@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -24,16 +25,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-ILoggerFactory GetLoggerFactory()
-{
-    IServiceCollection serviceCollection = new ServiceCollection();
-    serviceCollection.AddLogging(builder =>
-            builder.AddConsole()
-                    .AddFilter(DbLoggerCategory.Database.Command.Name,
-                            Microsoft.Extensions.Logging.LogLevel.Information));
-    return serviceCollection.BuildServiceProvider()
-            .GetService<ILoggerFactory>();
-}
 builder.Logging.ClearProviders();
 builder.Host.UseNLog();
 builder.Services.AddTransient<ErrorHandlingMiddleware>();
@@ -44,11 +35,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<TodoDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("MyDB"));
-    options.UseLoggerFactory(GetLoggerFactory());
+    options.UseLoggerFactory(LoggerDb.GetLoggerFactory());
 });
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
 builder.Services.AddSingleton<ISieveProcessor, SieveProcessor>();
-/*builder.Services.Configure<SieveOptions>(builder.Configuration.GetSection("Sieve"));*/
 builder.Services.AddControllersWithViews().AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
 );
@@ -57,25 +47,52 @@ builder.Services.AddScoped<IUserRepository, UserService>();
 builder.Services.AddScoped<IProjectRepository, ProjectService>();
 builder.Services.AddScoped<ITasksRepository, TaskService>();
 
-builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
+builder.Services.AddIdentity<User, IdentityRole>(options =>
+{
+    // Thiết lập về Password
+    options.Password.RequireDigit = false; // Không bắt phải có số
+    options.Password.RequireLowercase = false; // Không bắt phải có chữ thường
+    options.Password.RequireNonAlphanumeric = false; // Không bắt ký tự đặc biệt
+    options.Password.RequireUppercase = false; // Không bắt buộc chữ in
+    options.Password.RequiredLength = 8; // Số ký tự tối thiểu của password
+    options.Password.RequiredUniqueChars = 1; // Số ký tự riêng biệt
 
-var secretKey = builder.Configuration["AppSettings:SecretKey"];
-var secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
+    // Cấu hình Lockout - khóa user
+    /*options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5); // Khóa 5 phút
+    options.Lockout.MaxFailedAccessAttempts = 5; // Thất bại 5 lần thì khóa
+    options.Lockout.AllowedForNewUsers = true;*/
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
+    // Cấu hình về User.
+    /*options.User.AllowedUserNameCharacters = // các ký tự đặt tên user
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";*/
+    options.User.RequireUniqueEmail = true;  // Email là duy nhất
+
+    // Cấu hình đăng nhập.
+    /*options.SignIn.RequireConfirmedEmail = true;            // Cấu hình xác thực địa chỉ email (email phải tồn tại)
+    options.SignIn.RequireConfirmedPhoneNumber = false; */    // Xác thực số điện thoại
+    /*options.SignIn.RequireConfirmedAccount = true;*/
+}).AddEntityFrameworkStores<TodoDbContext>().AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(opt =>
 {
     opt.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-
+        ValidateActor = true,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        RequireExpirationTime = true,
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
+        ValidAudience = builder.Configuration.GetSection("JWT:ValidAudience").Value,
+        ValidIssuer = builder.Configuration.GetSection("JWT:ValidIssuer").Value,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JWT:Secret").Value)),
 
-        ClockSkew = TimeSpan.Zero
+        /*ClockSkew = TimeSpan.Zero*/
     };
 });
-
 
 var app = builder.Build();
 

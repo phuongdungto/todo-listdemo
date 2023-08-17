@@ -18,9 +18,9 @@ namespace todo.Dto
 
         [Sieve(CanFilter = true, CanSort = true)]
         public string Email { get; set; }
-
-        [Sieve(CanFilter = true)]
+        [Sieve(CanFilter = true, CanSort = true)]
         public string Role { get; set; }
+
         [JsonIgnore]
         [IgnoreDataMember]
         public ICollection<Project>? Projects { get; set; }
@@ -42,17 +42,18 @@ namespace todo.Dto
         [Required]
         [MinLength(8)]
         public string Password { get; set; }
-
         [Required]
         [EnumDataType(typeof(Roles))]
-        public Roles Role { get; set; }
+        public string Role { get; set; }
     }
 
     public class UpdateUsersDto
     {
         public string? Fullname { get; set; }
-        [MinLength(8)]
-        public string? Password { get; set; }
+        /* [MinLength(8)]
+         public string? Password { get; set; }*/
+        [EnumDataType(typeof(Roles))]
+        public string? Role { get; set; }
     }
     public class AuthDto
     {
@@ -66,17 +67,10 @@ namespace todo.Dto
 
     public class AuthResponse
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         public string Email { get; set; }
         public string Fullname { get; set; }
         public string AccessToken { get; set; }
-        public AuthResponse(Guid id, string email, string fullname, string accessToken)
-        {
-            Id = id;
-            Email = email;
-            Fullname = fullname;
-            AccessToken = accessToken;
-        }
     }
 
     public class GetUsersResponse
@@ -84,5 +78,11 @@ namespace todo.Dto
         public int totalPages { get; set; }
         public ICollection<UserDto> Users { get; set; }
 
+    }
+
+    public static class UserRoles
+    {
+        public const string Admin = "admin";
+        public const string User = "user";
     }
 }

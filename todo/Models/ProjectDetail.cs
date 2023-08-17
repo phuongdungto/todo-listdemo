@@ -8,8 +8,8 @@ namespace todo.Models
         public Project Project { get; set; }
         [Column("project_id")]
         public Guid ProjectId { get; set; }
-        public User User { get; set; }
         [Column("user_id")]
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
+        public User User { get; set; }
     }
 }

@@ -284,11 +284,6 @@ namespace todo.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Fullname")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("fullname");
-
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 

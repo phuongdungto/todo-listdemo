@@ -7,10 +7,9 @@ namespace todo.Models
         [Column("task_id")]
         public Guid TasksId { get; set; }
         public Tasks Tasks { get; set; }
-
         [Column("user_id")]
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
+        [ForeignKey(nameof(UserId))]
         public User User { get; set; }
-
     }
 }

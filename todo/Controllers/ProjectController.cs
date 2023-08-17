@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Sieve.Models;
@@ -25,6 +26,7 @@ namespace todo.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.User)]
         public async Task<IActionResult> CreateProject(CreateProjectDto project)
         {
             var newProject = await projectRepository.CreateProject(project);
@@ -32,12 +34,14 @@ namespace todo.Controllers
             return Ok(projectDto);
         }
         [HttpDelete("{id}")]
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.User)]
         public async Task<IActionResult> DeteleProject(Guid id)
         {
             await projectRepository.DeleteProject(id);
             return Ok("Deleted project success");
         }
         [HttpPut("{id}")]
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.User)]
         public async Task<IActionResult> UpdateProject(UpdateProjectDto project, Guid id)
         {
             var newProject = await projectRepository.UpdateProject(project, id);

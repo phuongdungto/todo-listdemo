@@ -5,10 +5,10 @@ namespace todo.Repositories
 {
     public interface IUserRepository
     {
-        Task<User> CreateUser(CreateUsersDto user);
-        Task<User> UpdateUser(Guid id, UpdateUsersDto user);
-        Task DeleteUser(Guid id);
-        Task<User> GetUser(Guid id);
+        Task<bool> CreateUser(CreateUsersDto user);
+        Task<UserDto> UpdateUser(string id, UpdateUsersDto user);
+        Task DeleteUser(string id);
+        Task<UserDto> GetUser(string id);
         Task<IQueryable<User>> GetUsers();
         Task<AuthResponse> Login(AuthDto user);
     }

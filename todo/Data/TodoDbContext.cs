@@ -1,12 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 using todo.Models;
 
 namespace todo.Data
 {
-    public class TodoDbContext : DbContext
+    public class TodoDbContext : IdentityDbContext<User>
     {
-        public DbSet<User> Users { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<Tasks> Tasks { get; set; }
         public DbSet<ProjectDetail> ProjectDetails { get; set; }
@@ -73,12 +73,12 @@ namespace todo.Data
                 .Metadata.PrincipalToDependent?.SetIsEagerLoaded(false);*/
 
 
-            modelBuilder.Entity<User>().Navigation(e => e.Projects)
-                .AutoInclude(false);
-            modelBuilder.Entity<User>().Navigation(e => e.ProjectDetails)
-                .AutoInclude(false);
-            modelBuilder.Entity<User>().Navigation(e => e.TasksDetails)
-                .AutoInclude(false);
+            /* modelBuilder.Entity<User>().Navigation(e => e.Projects)
+                 .AutoInclude(false);
+             modelBuilder.Entity<User>().Navigation(e => e.ProjectDetails)
+                 .AutoInclude(false);
+             modelBuilder.Entity<User>().Navigation(e => e.TasksDetails)
+                 .AutoInclude(false);*/
 
             modelBuilder.Entity<ProjectDetail>().Navigation(e => e.Project)
                 .AutoInclude(false);

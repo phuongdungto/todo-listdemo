@@ -23,7 +23,7 @@ namespace todo.Dto
         public string Name { get; set; }
 
         [Required]
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
         public ICollection<ProjectDetailDto>? ProjectDetails { get; set; }
     }
 

@@ -1,17 +1,15 @@
-﻿using Sieve.Attributes;
+﻿using Microsoft.AspNetCore.Identity;
 
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+using Sieve.Attributes;
+
 using System.ComponentModel.DataAnnotations.Schema;
-
-using todo.Enums;
 
 namespace todo.Models
 {
     [Table("users")]
-    public class User : Auditable
+    public class User : IdentityUser
     {
-        [Key]
+        /*[Key]
         [Column("id")]
         public Guid Id { get; set; }
 
@@ -33,7 +31,10 @@ namespace todo.Models
 
         [Required]
         [Column("password")]
-        public string Password { get; set; }
+        public string Password { get; set; }*/
+        [Column("fullname")]
+        [Sieve(CanFilter = true, CanSort = true)]
+        public string Fullname { get; set; }
         public ICollection<Project>? Projects { get; set; }
         public ICollection<ProjectDetail> ProjectDetails { get; set; }
         public ICollection<TaskDetail>? TasksDetails { get; set; }
